@@ -6,7 +6,8 @@
 #include <iomanip> 
 #include <vector> 
 using namespace std;
-const char* mainbody="tabs.txt";
+const char* mainbody="tabs.csv";
+const int AmountOfTabs=100;
 const int Length=100;
 
 template<typename Type>
@@ -66,28 +67,41 @@ void check(int tab[]){
     if(tab[i+1]<tab[i])
     cout << "error error"; 
   }
+}
 
+
+void Print(int tab[AmountOfTabs][Length]){
+      for(int i=0;i<AmountOfTabs;i++){
+        for(int j=0;j<Length;j++){
+          cout << tab[i][j] << " " ;
+        }
+        cout << endl;
+      }
 }
 
 int main(){
-    clock_t start=clock();
-    int AmountOfTabs=100;
-    srand( time( NULL ) );
-    int tab[Length];
+    ifstream reading;
+    int tab[AmountOfTabs][Length];
+    char buffer;
 
-    for(int j=0;j<AmountOfTabs;j++){
-
-      for(int i=0;i<Length;i++){
-           tab[i] = rand()  %1000 ;
+    reading.open(mainbody);
+    for(int i=0;i<AmountOfTabs;i++){
+      for (int j = 0; j < Length; j++)
+      {
+        reading >> tab[i][j] >> buffer;
       }
-      quicksort(0,Length-1,tab);
-     // MergeSort<int>(0,Length-1,tab)  ;
+        
     }
-
-
-  //    for(int i=0;i<Length;i++){
-  //        cout << setw(5) << tab[i] ;}
-
+    reading.close();
+    
+    clock_t start=clock();  
+    
+    for(int j=0;j<AmountOfTabs;j++){
+     // quicksort(0,Length-1,tab);
+      MergeSort<int>(0,Length-1,tab[j])  ;
+    }
+     
+    
 cout << endl << "Czas sortowania dla 100 tablic o rozmiarze " << Length << " :" << (double)(clock()-start)/CLOCKS_PER_SEC;
 cout << endl;
 
