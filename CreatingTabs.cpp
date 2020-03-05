@@ -9,9 +9,8 @@ const int AmountOfTabs=100;
 
 
 int main(int argc, char *argv[]){  
-  if(argc<2)
-  {cout << "Wywolanie ./CreatingTabs [rozmiar tablicy]" << endl;return 0;}
-  
+ if(argc<2)
+  {cout << "Wywolanie ./CreatingTabs [rozmiar tablicy]" << endl;return 0;}  
   int Length=atoi(argv[1]);
 
   srand( time( NULL ) );
@@ -35,8 +34,5 @@ int main(int argc, char *argv[]){
     }
 
     filestream.close();
-
-
-
 
 }
