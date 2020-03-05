@@ -1,5 +1,5 @@
 #pragma once
-const int Length=100000;
+const int Length=1000000;
 using namespace std;
 
 int *CreateTab(int n);
@@ -40,13 +40,10 @@ void MergeSort(int id0,int id1,Type tab[]){
 
 }
 
-
-
 template<typename Type>
-void quicksort(int id0,int id1,Type tab[]){
-
-/*podzial na polowki i piwot, piwot z ideksem j*/
+int FindingPivot(int id0,int id1,Type tab[]){
   int halfscore=tab[(id0+id1)/2],j=id0;
+  
   tab[(id0+id1)/2]=tab[id1];
   
   for(int i=id0;i<id1;i++){  
@@ -59,7 +56,15 @@ void quicksort(int id0,int id1,Type tab[]){
   }
   tab[id1]=tab[j];
   tab[j]=halfscore;
+return j;
+}
 
+
+template<typename Type>
+void quicksort(int id0,int id1,Type tab[]){
+
+/*podzial na polowki i piwot, piwot z ideksem j*/
+  int j=FindingPivot(id0,id1,tab);
   
   if(id0<j-1){
   quicksort(id0,j-1,tab);}

@@ -3,8 +3,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <chrono>
+#include <algorithm>
 #include "SortingAlgorythms.hh"
 using namespace std;
+using namespace std::chrono;
 const char* mainbody="tabs.csv";
 const int AmountOfTabs=100;
 
@@ -39,42 +42,42 @@ void heapsort(int n,int tab[])
     } 
 } 
 
-void insertionsort(int id1,int tab[]){
-  int help=0,i=0;
-  for(int j=1;j<id1;j++){
-    help=tab[j];
-    
-    for(i=j-1;j>=0 && tab[i]>help; i-- )
-      tab[i+1]=tab[i];
-
-    tab[i+1]=help;
+void insertionsort(int id0,int id1,int tab[]){
+  int help=0,i;
+  
+  for(int j=id1-2;j>=id0;j--)
+  {
+    help = tab[j];
+    i = j + 1;
+    while((i < id1) && (help > tab[i]))
+    {
+      tab[i - 1] = tab[i];
+      i++;
+    }
+    tab[i - 1] = help;
   }
 
 }
 //////////////////////////////////////////////////
 
 void introspectivesort(int id0,int id1,int maxdepth,int tab[]){
-  int halfscore=tab[(id0+id1)/2],j=id0;
-  if((id1-id0)<16){
-    insertionsort(id1+1,tab);
-  }else if(maxdepth==0){
-    heapsort(id1+1,tab);
-  }else{
-  //partition
-    tab[(id0+id1)/2]=tab[id1];
-    for(int i=id0;i<id1;i++){  
-      if(tab[i]<halfscore){
-        swap(tab[i],tab[j]);
-        j++;
-      }
+  int j;
+  if((id1-id0)<=0) return;
+
+  if(id1-id0>16){
+    
+    if(maxdepth==0){
+    heapsort((id1-id0+1),tab+id0);
     }
-    tab[id1]=tab[j];
-    tab[j]=halfscore;
-
-    introspectivesort(id0,j-1,maxdepth-1,tab);
-    introspectivesort(j+1,id1,maxdepth-1,tab);
+    
+    maxdepth--;
+    j=FindingPivot(id0,id1,tab);
+    introspectivesort(id0,j-1,maxdepth,tab);
+    introspectivesort(j+1,id1,maxdepth,tab);
+   
+  }else{
+  insertionsort(id0,id1+1,tab); // za czesto sie to wykonuje
   }
-
 }
 
 void Print(int tab[Length]){
@@ -84,32 +87,40 @@ void Print(int tab[Length]){
         cout << endl;
 }
 
-int main(){
-    ifstream reading;
-    int *tab;
-    char buffer;
-
-    clock_t start=clock();  
-
-    reading.open(mainbody);
-    for(int i=0;i<AmountOfTabs;i++){
-      tab=CreateTab(Length);
-      for (int j = 0; j < Length; j++)
-      {
-        reading >> tab[j] >> buffer;
-      }
+double sorts(int tab[]){
+      high_resolution_clock::time_point t1 = high_resolution_clock::now();
       //MergeSort<int>(0,Length-1,tab)  ;
-      //quicksort(0,Length-1,tab);
+      quicksort(0,Length-1,tab);
+      //sort(tab,tab+Length,greater<int>());
       //heapsort(Length,tab);
-      //insertionsort(Length,tab);
-      introspectivesort(0,Length-1,log(Length)*2/M_LN2,tab);
+      //insertionsort(0,Length,tab);
+      //introspectivesort(0,Length-1,log(Length)*2/M_LN2,tab);
+      check(tab);
+      high_resolution_clock::time_point t2 = high_resolution_clock::now();
+      duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+return time_span.count();
+}
+
+int main(){
+  
+    int *tab=CreateTab(Length);
+    srand( time( NULL ) );
+    double k;  
+    
+    for(int i=0;i<1;i++){
+
+      for (int j = 0; j < Length; j++){
+       tab[j] = rand() %10000 ;
+      }
+
+      k=sorts(tab);
       //Print(tab);
-      deleteTab(tab);
     }
-    reading.close();
-    
-    
-cout << endl << "Czas sortowania dla 100 tablic o rozmiarze " << Length << " :" << (double)(clock()-start)/CLOCKS_PER_SEC;
-cout << endl;
+
+      deleteTab(tab);  
+  
+
+  cout << endl << "Czas sortowania dla 100 tablic o rozmiarze " << Length << " :" << k ;
+  cout << endl;
 
 }
