@@ -1,11 +1,11 @@
-main.out: main.o SortingAlgorythms.o
-	g++ -Wall -pedantic -std=c++0x -o main SortingAlgorythms.o main.o -lpanel -lcurses
+SortingAlgorythms.out: obj/SortingAlgorythms.o 
+	g++ -Wall -pedantic -std=c++0x -o SortingAlgorythms obj/SortingAlgorythms.o -lpanel -lcurses
 
-SortingAlgorythms.o: SortingAlgorythms.cpp SortingAlgorythms.hh
-	g++ -Wall -pedantic -std=c++0x -c -o SortingAlgorythms.o SortingAlgorythms.cpp
+obj:
+	mkdir obj
 
-main.o: main.cpp 
-	g++ -Wall -pedantic -std=c++0x -c -o main.o main.cpp
+obj/SortingAlgorythms.o: SortingAlgorythms.hh SortingAlgorythms.cpp 
+	g++ -Wall -pedantic -std=c++0x -c -o obj/SortingAlgorythms.o SortingAlgorythms.cpp
 
 clean:
 	rm -f *.o 
