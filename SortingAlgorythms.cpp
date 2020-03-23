@@ -1,21 +1,18 @@
-#include <fstream>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
 #include <chrono>
-#include <algorithm>
 #include "SortingAlgorythms.hh"
 using namespace std;
 using namespace std::chrono;
-const int AmountOfTabs=100;
+
 
 enum Order{
   growing=true,
   decending=false
 };
 
-class Statistica{
-  public:
+struct Statistica{
   double TimeTab[AmountOfTabs];
   double GetAverage();
   double GetTheWorst();
@@ -48,43 +45,61 @@ double Statistica::GetTheWorst(){
 return TheWorst;  
 }
 
-double sorts(int tab[],Order order,double percentage){
+double sorts(int tab[]){
       high_resolution_clock::time_point t1 = high_resolution_clock::now();
-      double HowMuch=(percentage/100*Length);
-      int end=static_cast<int>(HowMuch);
-      //MergeSort<int>(0,end-1,tab)  ;
-      quicksort(0,end-1,tab,order);
-      //heapsort(end,tab);
-      //insertionsort(0,end,tab);
-      //introspectivesort(0,end-1,log(end)*2/M_LN2,tab,order);
+      
+      int *help=CreateTab<int>(Length);
+      MergeSort<int>(0,Length-1,tab,help)  ;
+      //quicksort(0,Length-1,tab,growing);
+      //heapsort(Length,tab);
+      //insertionsort(0,Length,tab);
+      introspectivesort(0,Length-1,log(Length)*2/M_LN2,tab,growing);
       //check(tab);
       high_resolution_clock::time_point t2 = high_resolution_clock::now();
       duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-return time_span.count();
+
+return time_span.count()*1000;
+}
+
+void PrepareForSorts(int tab[],Order order,double percentage){
+  double HowMuch=(percentage/100*Length);
+  int end=static_cast<int>(HowMuch);
+  quicksort(0,end-1,tab,order);
 }
 
 int main(){
   Order order;
   order=growing;
-  Statistica stats;
+  Statistica stats[8];
+  double percentage[8]={0,25,50,75,95,99,99.7,100};
 
   int *tab=CreateTab<int>(Length);
   srand( time( NULL ) );
-    
-    for(int i=0;i<100;i++){
+
+  for(int k=0;k<8;k++){
+    for(int i=0;i<AmountOfTabs;i++){
 
       for (int j = 0; j < Length; j++){
        tab[j] = rand() %10000 ;
       }
-
-      stats.TimeTab[i]=sorts(tab,order,100);
+      
+      if(k==7){
+         order=decending;
+      }
+      
+      PrepareForSorts(tab,order,percentage[k]);
+      stats[k].TimeTab[i]=sorts(tab);
+      Print(tab,Length);
+      check(tab,Length,true);
     }
+  }
 
       deleteTab(tab);
+  cout << "Sortowanie intro. Liczba elem:" << Length << endl; 
   
-  cout << endl << "Sredni czas sortowania tablic o rozmiarze " << Length << " :" << stats.GetAverage() ;
-  cout << endl;
-  cout << "Najlepszy przypadek: " << stats.GetTheBest() << endl; 
-  cout << "Najgorszy przypadek: " << stats.GetTheWorst() << endl;
+  for(int i=0;i<8;i++){
+    cout << percentage[i] << " , " << stats[i].GetAverage() << " , " <<stats[i].GetTheBest() << " , " << stats[i].GetTheWorst();
+    cout << endl ;
+  }
 
 }

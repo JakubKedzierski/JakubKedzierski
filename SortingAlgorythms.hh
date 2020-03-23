@@ -1,30 +1,67 @@
 #pragma once
-const int Length=10;
 #include <iostream>
 #include <iomanip>  
 using namespace std;
+const int AmountOfTabs=1;
+const int Length=10;
 
 
-
+/**
+ * @brief - Funkcja sprawdza poprawnosc posortowania danej tablicy
+ * 
+ * @tparam Type - Typ danych ktore sortujemy
+ * @param tab - tablica ktora sortujemy
+ * @param n - indeks ostatniego elementu w tablicy
+ * @param order - kolejnosc uprzadkowania (1 -rosnaca, 0 - malejaca)
+ */
 template<typename Type>
-void check(Type tab[]){
-  for(int i=0;i<Length-1;i++){
-    if(tab[i+1]<tab[i]){
-    cout << endl << endl << "error error gdzies w poblizu indeksu " << i << endl; 
-    return;}
+void check(Type tab[],int n,bool order){
+  for(int i=0;i<n-1;i++){
+    if(order){
+      if(tab[i+1]<tab[i]){
+        cout << endl << endl << "Tablica nie jest odpowiednio uporzadkowana. Blad przy indeksie: " << i+1 << endl; 
+      return;}
+    }else{
+      if(tab[i+1]>tab[i]){
+        cout << endl << endl << "Tablica nie jest odpowiednio uporzadkowana Blad przy indeksie: " << i+1 << endl; 
+      return;}
+    }
   }
 }
 
+
+/**
+ * @brief Dynamiczna alokacja miejsca na tablice
+ * 
+ * @tparam Type - typ danych w tablicy
+ * @param n - ilosc elementow w tablicy
+ * @return Type* - zwracana tablica
+ */
 template<typename Type>
 Type* CreateTab(int n){
     return new Type[n];
 }
 
+
+/**
+ * @brief Usuwanie dynamicznie zaalokowanej tablicy
+ * 
+ * @tparam Type - typ danych
+ * @param tab - tablica do usuniecia
+ */
 template<typename Type>
 void deleteTab(Type *tab){
     delete [] tab;
 }
 
+
+/**
+ * @brief Wypisanie tablicy na stdout
+ * 
+ * @tparam Type - typ danych
+ * @param tab  - tablica do wypisania 
+ * @param n - 
+ */
 template<typename Type>
 void Print(Type* tab,int n){
         for(int j=0;j<n;j++){
@@ -33,11 +70,22 @@ void Print(Type* tab,int n){
         cout << endl;
 }
 
-template<typename Type>
-void Merge(int id0,int id1,int half,Type tab[]){
-    int left=id0,right=half;
-    Type help[Length];
 
+/**
+ * @brief Scalanie tablic na potrzeby algorytmu sortowania przez scalanie. Na potrzeby 
+ * dzialania funkci scalania musimy znac indek
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - indeks pierwszego elementu w tablicy do scalenia (pierwsza tablica)
+ * @param id1 - indeks ostatniego elementu w tablicy do scalenia (druga tablica)
+ * @param half - indeks elementu dzielacego tablice do posortowania
+ * @param tab - tablica do posortowania
+ * @param help - tablica pomocnicza 
+ */
+template<typename Type>
+void Merge(int id0,int id1,int half,Type tab[],Type help[]){
+    int left=id0,right=half;
+    
     for(int i=id0;i<=id1;i++){
        if( (left==half) || ( (right<=id1) && (tab[left]>tab[right]) ) )
         {
@@ -51,22 +99,47 @@ void Merge(int id0,int id1,int half,Type tab[]){
 
     }   
 
+
     for(int i=id0;i<=id1;i++)
     tab[i]=help[i];
-
 }
-template<typename Type>
-void MergeSort(int id0,int id1,Type tab[]){
-    int half=(id0+id1)/2;  // polowka problemu
 
-  if(id1!=id0){   // dopoki sa wiecej niz 1 elementy
-    MergeSort<Type>(id0,half,tab);  // sortujemy pierwsza czesc problemu
-    MergeSort<Type>(half+1,id1,tab);  // sortujemy druga czesc problemu
-    Merge<Type>(id0,id1,half+1,tab); // laczymy dwa posortowane problemy
+
+/**
+ * @brief Sortowanie przez scalanie
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - indeks pierwszego elementu tablicy do posortowania
+ * @param id1 - indeks ostatniego elementu tablicy do posortowania
+ * @param tab - tablica ktora chcemy posortowac
+ * @param help - tablica pomocnicza o takim samym rozmiarze jak tablica ktora chcemy posortowac,
+ * pomocna w scalaniu, gdzie przepisujemy scalane tablice
+ */
+template<typename Type>
+void MergeSort(int id0,int id1,Type tab[],Type help[]){
+  
+  int half=(id0+id1)/2;  // polowka problemu
+
+  if(id1!=id0){   // dopoki jest wiecej niz 1 element
+    MergeSort<Type>(id0,half,tab,help);  // sortujemy pierwsza czesc problemu
+    MergeSort<Type>(half+1,id1,tab,help);  // sortujemy druga czesc problemu
+    Merge<Type>(id0,id1,half+1,tab,help); // laczymy dwa posortowane problemy
   }
 
 }
 
+
+/**
+ * @brief Podzial na partycje oraz znajdowanie piwotu na potrzeby sortowania szybkiego oraz
+ * sortowania introspektywnego
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - indeks pierwszego elementu
+ * @param id1 - indeks ostatniego elementu
+ * @param tab - tablica do posortowania
+ * @param order - kierunek uporzadkowania (rosnaco - 1, malejaco - 0)
+ * @return int - zwracany indeks piwotu
+ */
 template<typename Type>
 int FindingPivot(int id0,int id1,Type tab[],bool order){
   int halfscore=tab[(id0+id1)/2],j=id0;
@@ -95,10 +168,19 @@ return j;
 }
 
 
+/**
+ * @brief Sortowanie szybkie
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - indeks pierwszego elementu
+ * @param id1  - inedks ostatniego elementu
+ * @param tab 
+ * @param order 
+ */
 template<typename Type>
 void quicksort(int id0,int id1,Type tab[],bool order){
 
-/*podzial na polowki i piwot, piwot z ideksem j*/
+ /*podzial na polowki i piwot, piwot z ideksem j*/
   int j=FindingPivot(id0,id1,tab,order);
   
   if(id0<j-1){
