@@ -5,6 +5,22 @@ using namespace std;
 const int AmountOfTabs=1;
 const int Length=10;
 
+/**
+ * @brief W tym pliku znajduja sie szablony funkcji sortujacych, funkcje pomocne przy 
+ * testowaniu oraz struktura stosowana do zliczania czasu sortowan.
+ */
+
+
+/**
+ * @brief Stastystyka na potrzeby testow sortowania
+ * 
+ */
+struct Statistica{
+  double TimeTab[AmountOfTabs]; // tablica czasow
+  double GetAverage(); 
+  double GetTheWorst();
+  double GetTheBest();
+};
 
 /**
  * @brief - Funkcja sprawdza poprawnosc posortowania danej tablicy
@@ -72,8 +88,7 @@ void Print(Type* tab,int n){
 
 
 /**
- * @brief Scalanie tablic na potrzeby algorytmu sortowania przez scalanie. Na potrzeby 
- * dzialania funkci scalania musimy znac indek
+ * @brief Scalanie tablic na potrzeby algorytmu sortowania przez scalanie.
  * 
  * @tparam Type - typ danych do posortowania
  * @param id0 - indeks pierwszego elementu w tablicy do scalenia (pierwsza tablica)
@@ -174,8 +189,8 @@ return j;
  * @tparam Type - typ danych do posortowania
  * @param id0 - indeks pierwszego elementu
  * @param id1  - inedks ostatniego elementu
- * @param tab 
- * @param order 
+ * @param tab  - tablica do posortowania
+ * @param order  - kolejnosc uporzadkowania (rosnaco -1, malejaco - 0)
  */
 template<typename Type>
 void quicksort(int id0,int id1,Type tab[],bool order){
@@ -191,9 +206,16 @@ void quicksort(int id0,int id1,Type tab[],bool order){
 
 }
 
-/*Algorytmy sortowania przygotowane na potrzeby sortowania introspektywnego */
 
-/*Tworzenie kopca na potrzeby sortowania przez kopcowanie*/
+/**
+ * @brief Tworzenie kopca na potrzeby sortowania przez kopcowanie
+ * Sortowanie przez kopcowanie na potrzeby sortowania introspektywnego
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param n - ilosc elementow do posortowania
+ * @param id - korzen kopca
+ * @param tab - tablia do stworzenia kopca
+ */
 template<typename Type>
 void heapify(int n,int id,Type tab[]){
   int idhelp=id,left=2*id+1,right=2*id+2;
@@ -212,6 +234,14 @@ void heapify(int n,int id,Type tab[]){
 
 }
 
+
+/**
+ * @brief Sortowanie przez kopcowanie na potrzeby sortowania introspektywnego
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param n - ilosc elementow do posortowania
+ * @param tab - tablica do posortowania
+ */
 template<typename Type>
 void heapsort(int n,Type tab[]) 
 { 
@@ -220,19 +250,28 @@ void heapsort(int n,Type tab[])
   
     for (int i=n-1; i>=0; i--) 
     { 
-        swap(tab[0], tab[i]); 
-        heapify(i,0,tab); 
+        swap(tab[0], tab[i]);  //Przeniesienie korzenia na koniec kopca
+        heapify(i,0,tab);  // Budowanie kopca na zmniejszonej ilosci danych (pomniejszonym kopcu)
     } 
 } 
 
-/* sortowanie przez wstawianie na uzytek sortowania introspektywnego */
+
+/**
+ * @brief Sortowanie przez wstawianie
+ * Prosty algorytm sortowania na potrzeby sortowania introspketywnego
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - inedks pierwszego elementu tablicy
+ * @param id1 - ilosc elementow w tablicy
+ * @param tab - tablica do posortowania
+ */
 template<typename Type>
 void insertionsort(int id0,int id1,Type tab[]){
   int help=0,i;
   
   for(int j=id1-2;j>=id0;j--)
   {
-    help = tab[j];
+    help = tab[j]; // 'wyciagany' element
     i = j + 1;
     while((i < id1) && (help > tab[i]))
     {
@@ -243,14 +282,25 @@ void insertionsort(int id0,int id1,Type tab[]){
   }
 
 }
-//////////////////////////////////////////////////
 
+
+/**
+ * @brief  Sortowanie introspektywne. Hybryda 3 sortowan - sortowania szybkiego
+ * sortowania przez wstawianie i sortowania przez kopcowanie
+ * 
+ * @tparam Type - typ danych do posortowania
+ * @param id0 - inedks pierwszego elementu
+ * @param id1 - indeks ostatniego elementu
+ * @param maxdepth - parametr na okreslenie glebokosci rekurencji (logarytm liczby elementow do posortowania)
+ * @param tab - tablica do posortowania
+ */
 template<typename Type>
-void introspectivesort(int id0,int id1,int maxdepth,Type tab[],bool order){
+void introspectivesort(int id0,int id1,int maxdepth,Type tab[]){
   int j;
+  bool order=1; // na potrzeby partycji ktora jest utworzona do sortowania w "dwie strony"
   if((id1-id0)<=0) return;
 
-  if(id1-id0>16){
+  if(id1-id0>16){ // na wikipedi jest 9, ale z pomiarow wychodzilo lepiej dla wiekszej liczby
     
     if(maxdepth==0){
     heapsort((id1-id0+1),tab+id0);
@@ -258,11 +308,12 @@ void introspectivesort(int id0,int id1,int maxdepth,Type tab[],bool order){
     
     maxdepth--;
     j=FindingPivot(id0,id1,tab,order);
-    introspectivesort(id0,j-1,maxdepth,tab,order);
-    introspectivesort(j+1,id1,maxdepth,tab,order);
+    introspectivesort(id0,j-1,maxdepth,tab);
+    introspectivesort(j+1,id1,maxdepth,tab);
    
   }else{
   // Dla malych tablic sortujemy przez wstawianie
   insertionsort(id0,id1+1,tab);
   }
 }
+

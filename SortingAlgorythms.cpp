@@ -6,17 +6,30 @@
 using namespace std;
 using namespace std::chrono;
 
+/**
+ * @brief W tym pliku znajduje sie metody struktury potrzebnej do statystyki 
+ * oraz przyklad dzialania programu dla malej liczby danych 
+ * 
+ */
 
+
+/**
+ * @brief Kolejnosc sortowania
+ * 
+ */
 enum Order{
   growing=true,
   decending=false
 };
 
-struct Statistica{
-  double TimeTab[AmountOfTabs];
-  double GetAverage();
-  double GetTheWorst();
-  double GetTheBest();
+/**
+ * @brief Wybor sortowania
+ * 
+ */
+enum Choose{
+  Squick,
+  Smerge,
+  Sintro
 };
 
 double Statistica::GetAverage(){
@@ -45,61 +58,91 @@ double Statistica::GetTheWorst(){
 return TheWorst;  
 }
 
-double sorts(int tab[]){
-      high_resolution_clock::time_point t1 = high_resolution_clock::now();
-      
+/**
+ * @brief Sortowanie wraz z obliczaniem czasu sortowania
+ * 
+ * @param tab - tablica do posortowania
+ * @param sorting - sposob sortowania
+ * @return double - czas sortowania
+ */
+double sorts(int tab[],Choose sorting){
       int *help=CreateTab<int>(Length);
-      MergeSort<int>(0,Length-1,tab,help)  ;
-      //quicksort(0,Length-1,tab,growing);
-      //heapsort(Length,tab);
-      //insertionsort(0,Length,tab);
-      introspectivesort(0,Length-1,log(Length)*2/M_LN2,tab,growing);
-      //check(tab);
+      high_resolution_clock::time_point t1 = high_resolution_clock::now();
+      switch (sorting)
+      {
+      case 0:
+        quicksort(0,Length-1,tab,growing);
+        break;
+      
+      case 1:
+        MergeSort<int>(0,Length-1,tab,help)  ;
+        break;
+      
+      case 2:
+        introspectivesort(0,Length-1,log(Length)*2/M_LN2,tab);
+        break;
+      
+      default:
+        break;
+      }
+  
       high_resolution_clock::time_point t2 = high_resolution_clock::now();
       duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+      deleteTab(help);
 
 return time_span.count()*1000;
 }
 
+
+/**
+ * @brief Przygotowanie pod sortowanie - funkcja wspomagajaca testy
+ * 
+ * @param tab - tablica do przygotowania
+ * @param order - kolejnosc uporzadkowania
+ * @param percentage - procent danych do posortowania
+ */
 void PrepareForSorts(int tab[],Order order,double percentage){
   double HowMuch=(percentage/100*Length);
   int end=static_cast<int>(HowMuch);
   quicksort(0,end-1,tab,order);
 }
 
+
+
 int main(){
   Order order;
+  Choose choose[3]={Squick,Smerge,Sintro};
+  string name[3]={"szybkie","przez scalanie","introspektywne"};
   order=growing;
-  Statistica stats[8];
-  double percentage[8]={0,25,50,75,95,99,99.7,100};
+  Statistica stats;
+  double percentage=0;
 
   int *tab=CreateTab<int>(Length);
   srand( time( NULL ) );
 
-  for(int k=0;k<8;k++){
+  for(int choice=0;choice<3;choice++){
     for(int i=0;i<AmountOfTabs;i++){
 
       for (int j = 0; j < Length; j++){
        tab[j] = rand() %10000 ;
       }
-      
-      if(k==7){
-         order=decending;
-      }
-      
-      PrepareForSorts(tab,order,percentage[k]);
-      stats[k].TimeTab[i]=sorts(tab);
+
+      cout << "Sortowanie "<< name[choice] << " Liczba elementow do posortowania:" << Length << endl <<"Tablica wstepna:     " ;
+      PrepareForSorts(tab,order,percentage);
+      Print(tab,Length);
+      stats.TimeTab[i]=sorts(tab,choose[choice]);
+      check(tab,Length,growing);
+      cout << "Tablica posortowana: ";
       Print(tab,Length);
       check(tab,Length,true);
     }
-  }
-
-      deleteTab(tab);
-  cout << "Sortowanie intro. Liczba elem:" << Length << endl; 
   
-  for(int i=0;i<8;i++){
-    cout << percentage[i] << " , " << stats[i].GetAverage() << " , " <<stats[i].GetTheBest() << " , " << stats[i].GetTheWorst();
+    cout << "Czas sortowania: " << setw(5)  << stats.GetAverage() ;
     cout << endl ;
-  }
+  
+  } 
 
+deleteTab(tab);
+
+cout << "Projekt wykonal : Jakub Kedzierski 248915" << endl; 
 }
