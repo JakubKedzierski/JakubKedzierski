@@ -76,7 +76,7 @@ void deleteTab(Type *tab){
  * 
  * @tparam Type - typ danych
  * @param tab  - tablica do wypisania 
- * @param n - 
+ * @param n - ilosc elementow w tablicy
  */
 template<typename Type>
 void Print(Type* tab,int n){
